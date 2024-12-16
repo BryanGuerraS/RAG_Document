@@ -75,12 +75,13 @@ def startup_event():
     """
     Validar claves y procesar documento al iniciar el servidor.
     """
+
     validar_claves_api()
     cargar_documento_en_chroma_db()
 
 # Define estado para la solicitud de la API
 class SolicitudConsulta(BaseModel):
-    username: str
+    user_name: str
     question: str
 
 # Función de recuperación de documentos
@@ -90,8 +91,45 @@ def retrieve(state: SolicitudConsulta):
     # Retornar el contexto con el contenido de los documentos recuperados
     return {"context": [doc.page_content for doc in retrieved_docs]}
 
+# Función para detectar el idioma de la consulta
+def detectar_idioma(state: SolicitudConsulta):
+    # Incluir ejemplos para few-shot learning en el prompt
+    few_shot_examples = """
+    Ejemplo 1:
+    Pregunta: ¿Cómo estás?
+    Respuesta: es
+
+    Ejemplo 2:
+    Question: How are you?
+    Answer: en
+
+    Exemplo 3:
+    Pergunta: Como você está?
+    Resposta: pt
+    """
+
+    prompt = f"""
+    {few_shot_examples}
+    Eres un asistente especializado en detectar idiomas. 
+    Genera la respuesta en el formato mencionado en los ejemplos. 
+    Si no puedes determinarlo con certeza, responde 'es' por defecto.
+
+    Pregunta: {state.question}
+     
+    Respuesta:
+    """
+
+    # Llamar al modelo con el prompt formateado
+    response = llm.invoke(prompt)
+    
+    # Devolver la respuesta generada
+    return {
+        "answer": response.content,
+        #"full_prompt": formatted_prompt  # Mostrar el prompt completo para depuración, si es necesario
+    }
+
 # Función para generar la respuesta
-def generate(state: SolicitudConsulta, context: list):
+def generar_respuesta(state: SolicitudConsulta, context: list):
     # Instrucciones fijas y el formato del prompt
     prompt = """
     Eres un asistente para tareas de preguntas y respuestas. 
@@ -109,13 +147,17 @@ def generate(state: SolicitudConsulta, context: list):
     """
     
     # Formatear el prompt con la pregunta y el contexto
-    formatted_prompt = prompt.format(question=state.question, context="\n\n".join(context))
+    formatted_prompt = prompt.format(
+        question=state.question, 
+        context="\n\n".join(context)
+    )
 
     # Llamar al modelo con el prompt formateado
     response = llm.invoke(formatted_prompt)
 
     # Devolver la respuesta generada
     return {
+        "user_name":state.user_name,
         "answer": response.content,
         #"full_prompt": formatted_prompt  # Mostrar el prompt completo para depuración, si es necesario
     }
@@ -127,7 +169,8 @@ async def consulta(state: SolicitudConsulta):
     context_data = retrieve(state)
 
     # Paso 2: Generar respuesta utilizando los documentos recuperados
-    response_data = generate(state, context_data["context"])
+    response_data = detectar_idioma(state)
+    #response_data = generar_respuesta(state, context_data["context"])
 
     # Paso 3: Devolver la respuesta generada
     return response_data
