@@ -1,13 +1,12 @@
-from app.db import vector_store
+from langchain_chroma import Chroma
 from app.models import SolicitudConsulta
-from app.utils import validar_claves_api
 from langchain_cohere import ChatCohere
 from deep_translator import GoogleTranslator
 
 # Inicialización del modelo Cohere
 llm = ChatCohere(model="command-r-plus-04-2024", temperature=0)
 
-def retrieve(state: SolicitudConsulta):
+def retrieve(state: SolicitudConsulta, vector_store:Chroma):
     """
     Recupera documentos relacionados con la consulta del usuario desde el vector store.
 
@@ -17,7 +16,6 @@ def retrieve(state: SolicitudConsulta):
     Returns:
         dict: Contexto con los fragmentos de documentos relevantes.
     """
-    global vector_store
     retrieved_docs = vector_store.similarity_search(state.question)
     return {"context": [doc.page_content for doc in retrieved_docs]}
 
@@ -140,7 +138,7 @@ def traducir_respuesta(state: SolicitudConsulta, texto: str, idioma_destino: str
         print(f"Error al traducir con el modelo: {e}")
         return texto  # Devuelve el texto original si hay un fallo
 
-def procesar_consulta(state: SolicitudConsulta):
+def procesar_consulta(state: SolicitudConsulta, vector_store:Chroma):
     """
     Procesa una consulta desde el usuario: recuperar contexto, generar y traducir la respuesta.
 
@@ -150,7 +148,7 @@ def procesar_consulta(state: SolicitudConsulta):
     Returns:
         dict: Contiene la respuesta generada, ya traducida si es necesario.
     """
-    context_data = retrieve(state)
+    context_data = retrieve(state, vector_store)
     idioma_detectado = detectar_idioma(state)
     respuesta_base = generar_respuesta(state, context_data["context"])
     respuesta_final = traducir_respuesta(state, respuesta_base, idioma_detectado)

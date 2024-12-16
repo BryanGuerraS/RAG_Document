@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from app.config import load_env_vars
 from app.models import SolicitudConsulta
-from app.utils import validar_claves_api
 from app.db import cargar_documento_en_chroma_db
 from app.services import procesar_consulta
 
@@ -14,8 +13,8 @@ def startup_event():
     Validar claves y procesar documento al iniciar el servidor.
     """
     load_env_vars()
-    validar_claves_api()
-    cargar_documento_en_chroma_db()
+    global vector_store 
+    vector_store = cargar_documento_en_chroma_db()
 
 @app.get("/")
 async def root():
@@ -40,4 +39,4 @@ async def consulta(state: SolicitudConsulta):
     """
     Procesa las solicitudes de consulta enviadas mediante POST.
     """
-    return procesar_consulta(state)
+    return procesar_consulta(state, vector_store)

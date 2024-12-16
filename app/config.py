@@ -16,6 +16,6 @@ def load_env_vars():
     
     # Validar que las claves necesarias estén presentes
     missing_keys = [key for key in REQUIRED_KEYS if not os.getenv(key)]
-
+    
     if missing_keys:
         raise EnvironmentError(f"Faltan las siguientes claves de entorno: {', '.join(missing_keys)}")

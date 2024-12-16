@@ -42,5 +42,8 @@ def cargar_documento_en_chroma_db():
     )
 
     vector_store.add_documents(documents=all_splits)
-
+    
     print("Documento cargado con éxito en ChromaDB.")
+
+    return vector_store
+
