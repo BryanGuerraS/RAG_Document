@@ -29,7 +29,7 @@ os.environ["LANGCHAIN_TRACING_V2"] = "true"
 os.environ["LANGCHAIN_API_KEY"] = langchain_api_key
 
 # Inicializar modelo de o Cohere
-llm = ChatCohere(model="command-r-plus-04-2024")
+llm = ChatCohere(model="command-r-plus-04-2024", temperature=0)
 
 # Inicializar variable para el vector store
 vector_store = None
@@ -59,17 +59,17 @@ def cargar_documento_en_chroma_db():
     )
 
     all_splits = text_splitter.split_documents(data)
-
+    
     # Embedding
     embeddings = CohereEmbeddings(model="embed-english-v3.0")
-    
+
     # Cargar el vector store persistido
     vector_store = Chroma(
-        collection_name="example_01",
+        collection_name="example_02",
         embedding_function=embeddings,  # Tu función de embeddings
         persist_directory="./chroma_langchain_db",  # Ruta donde se guardan los datos
     )
-
+    
     vector_store.add_documents(documents=all_splits)
     
     print("Documento cargado con éxito")
@@ -138,7 +138,7 @@ def generar_respuesta(state: SolicitudConsulta, context: list):
     Usa los siguientes fragmentos de contexto recuperados para responder la pregunta. 
     Si no sabes la respuesta, simplemente di que no sabes. 
     Usa un máximo de una oración y mantén la respuesta concisa.
-    Coloca emojis al final a modo de resumen.
+    Agrega emojis al final que resuman la respuesta generada.
     Genera la respuesta en español.
 
     Pregunta: {question}    
