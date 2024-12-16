@@ -11,6 +11,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_cohere import ChatCohere
 from langchain_cohere import CohereEmbeddings
 from langchain_chroma import Chroma
+from deep_translator import GoogleTranslator
 import os
 
 # Inicializar la aplicación FastAPI
@@ -33,10 +34,13 @@ llm = ChatCohere(model="command-r-plus-04-2024")
 # Inicializar variable para el vector store
 vector_store = None
 
+def translate_text(text, target_language):
+    return GoogleTranslator(source='auto', target=target_language).translate(text)
+
 def validar_claves_api():
     #Validacion de Claves API
     if not langchain_api_key or not cohere_api_key:
-        raise ValueError("Las claves de API no están definidas en el archivo .env.")
+        raise ValueError("Las claves de API no están definidas en el archivo .env")
 
 def cargar_documento_en_chroma_db():
     global vector_store
@@ -123,10 +127,7 @@ def detectar_idioma(state: SolicitudConsulta):
     response = llm.invoke(prompt)
     
     # Devolver la respuesta generada
-    return {
-        "answer": response.content,
-        #"full_prompt": formatted_prompt  # Mostrar el prompt completo para depuración, si es necesario
-    }
+    return response.content
 
 # Función para generar la respuesta
 def generar_respuesta(state: SolicitudConsulta, context: list):
@@ -138,14 +139,15 @@ def generar_respuesta(state: SolicitudConsulta, context: list):
     Si no sabes la respuesta, simplemente di que no sabes. 
     Usa un máximo de una oración y mantén la respuesta concisa.
     Coloca emojis al final a modo de resumen.
-    
-    Pregunta: {question}
+    Genera la respuesta en español.
+
+    Pregunta: {question}    
 
     Contexto: {context}
 
     Respuesta:
     """
-    
+
     # Formatear el prompt con la pregunta y el contexto
     formatted_prompt = prompt.format(
         question=state.question, 
@@ -154,23 +156,90 @@ def generar_respuesta(state: SolicitudConsulta, context: list):
 
     # Llamar al modelo con el prompt formateado
     response = llm.invoke(formatted_prompt)
+    
+    return response.content
 
-    # Devolver la respuesta generada
+def traducir_respuesta(state:SolicitudConsulta, texto: str, idioma_destino: str):
+    """
+    Traduce un texto al idioma deseado utilizando el modelo de lenguaje.
+
+    Parameters:
+        texto (str): El texto que se desea traducir.
+        idioma_destino (str): Código ISO 639-1 del idioma destino.
+
+    Returns:
+        str: El texto traducido.
+    """
+    # Few-shot examples para que el modelo entienda cómo traducir
+    few_shot_examples = """
+    Ejemplo 1:
+    Texto: Emma decided to share her extra day with the people. 🌟🤸‍♀️
+    Idioma destino: es
+    Traducción: Emma decidió compartir su día extra con el pueblo. 🌟🤸‍♀️
+
+    Ejemplo 2:
+    Texto: Emma decidiu compartilhar seu dia extra com o povo. 🌟🤸‍♀️
+    Idioma destino: en
+    Traducción: Emma decided to share her extra day with the people. 🌟🤸‍♀️
+
+    Ejemplo 3:
+    Texto: Emma decidió compartir su día extra con el pueblo. 🌟🤸‍♀️
+    Idioma destino: pt
+    Traducción: Emma decidiu compartilhar seu dia extra com o povo. 🌟🤸‍♀️
+    """
+
+    # Crear el prompt para el modelo
+    prompt = f"""
+    {few_shot_examples}
+    Solo traduce el siguiente texto al idioma indicado manteniendo los emojis en el final.
+
+    Texto: {texto}
+    Idioma destino: {idioma_destino}
+
+    Traducción:
+    """
+
+    try:
+        # Llamar al modelo para generar la traducción
+        response = llm.invoke(prompt)
+        # Devolver la respuesta generada
+        return {
+            "user_name": state.user_name,
+            "answer": response.content,
+        }
+    except Exception as e:
+        print(f"Error al traducir con el modelo: {e}")
+        return texto  # Devuelve el texto original si hay un fallo
+
+# Endpoint GET para la ruta raíz
+@app.get("/")
+async def root():
+    """
+    Muestra un mensaje de bienvenida cuando se accede a la raíz de la API.
+    """
     return {
-        "user_name":state.user_name,
-        "answer": response.content,
-        #"full_prompt": formatted_prompt  # Mostrar el prompt completo para depuración, si es necesario
+        "message": "¡Bienvenido a la API de consultas! Utiliza el endpoint /consulta/ para hacer preguntas."
     }
 
-# Endpoint para recibir las solicitudes y generar respuestas
+@app.get("/consulta/")
+async def consulta_info():
+    """
+    Muestra un mensaje indicando que se debe usar POST para realizar consultas.
+    """
+    return {
+        "message": "Este endpoint está diseñado para solicitudes POST. Envía tu consulta como JSON."
+    }
+
+# Endpoint POST para procesar solicitudes de consulta
 @app.post("/consulta/")
 async def consulta(state: SolicitudConsulta):
     # Paso 1: Recuperar documentos relacionados
     context_data = retrieve(state)
 
     # Paso 2: Generar respuesta utilizando los documentos recuperados
-    response_data = detectar_idioma(state)
-    #response_data = generar_respuesta(state, context_data["context"])
+    idioma_detectado = detectar_idioma(state)
+    respuesta_base = generar_respuesta(state, context_data["context"])
+    respuesta_final = traducir_respuesta(state, respuesta_base, idioma_detectado)
 
     # Paso 3: Devolver la respuesta generada
-    return response_data
+    return respuesta_final
