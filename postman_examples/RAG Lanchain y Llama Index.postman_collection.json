@@ -1,0 +1,129 @@
+{
+	"info": {
+		"_postman_id": "abb38475-9b30-49d5-b081-ce1e832c184f",
+		"name": "RAG Lanchain y Llama Index",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40223294"
+	},
+	"item": [
+		{
+			"name": "Question LLM 01",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"user_name\": \"Bryan_Guerra\",\r\n    \"question\": \"Quien es Zara?\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/consulta/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"consulta",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Question LLM 02",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"user_name\": \"Rashan\",\r\n    \"question\": \"What did Emma decide to do?\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/question-llm/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"question-llm",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Question LLM 03",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"user_name\": \"Rashan\",\r\n    \"question\": \"What is the name of the magical flower?\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/question-llm/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"question-llm",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Question Test LLM",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://127.0.0.1:8000/question-llm/",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"question-llm",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
