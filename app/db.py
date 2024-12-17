@@ -1,3 +1,15 @@
+"""
+Módulo de carga de documentos en ChromaDB con LangChain.
+
+Este módulo permite cargar un documento `.docx`, dividirlo en fragmentos adecuados, 
+generar embeddings utilizando Cohere, y almacenarlos en una base de datos vectorial (ChromaDB).
+
+Funcionalidades principales:
+- Carga de un documento de texto en formato `.docx`.
+- División del texto en fragmentos (chunks) utilizando un divisor recursivo.
+- Creación de embeddings mediante el modelo de Cohere.
+- Persistencia de los embeddings en ChromaDB.
+"""
 from langchain_community.document_loaders import Docx2txtLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_cohere import CohereEmbeddings

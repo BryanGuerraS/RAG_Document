@@ -1,7 +1,29 @@
+"""
+Módulo de procesamiento de consultas mediante recuperación de contexto y generación de respuestas.
+
+Este módulo realiza las siguientes operaciones:
+1. Recupera documentos relacionados con la consulta del usuario desde un vector store utilizando Chroma.
+2. Detecta el idioma de la consulta mediante un modelo de lenguaje.
+3. Genera una respuesta basada en los fragmentos de contexto recuperados.
+4. Traduce la respuesta generada al idioma detectado o especificado.
+
+Dependencias:
+- langchain_chroma (Chroma): Para búsqueda de similitud en documentos.
+- langchain_cohere (ChatCohere): Para generación de texto y tareas de procesamiento del lenguaje.
+- deep_translator (GoogleTranslator): Para traducción de textos.
+- app.models (SolicitudConsulta): Modelo Pydantic que define la estructura de la consulta.
+
+Funciones principales:
+- retrieve(): Recupera documentos relevantes basados en la consulta.
+- detectar_idioma(): Detecta el idioma de la consulta del usuario.
+- generar_respuesta(): Genera una respuesta utilizando el contexto recuperado.
+- traducir_respuesta(): Traduce la respuesta generada al idioma especificado.
+- procesar_consulta(): Orquesta todo el flujo: recuperación, generación y traducción.
+"""
+
 from langchain_chroma import Chroma
 from app.models import SolicitudConsulta
 from langchain_cohere import ChatCohere
-from deep_translator import GoogleTranslator
 
 # Inicialización del modelo Cohere
 llm = ChatCohere(model="command-r-plus-04-2024", temperature=0)

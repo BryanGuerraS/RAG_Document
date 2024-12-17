@@ -1,3 +1,22 @@
+"""
+Módulo principal para inicializar y ejecutar la API de FastAPI.
+
+Estructura del módulo:
+1. Importaciones de librerías y módulos necesarios.
+2. Inicialización de la aplicación FastAPI.
+3. Configuración de eventos de inicio (startup) para preparar recursos como base de datos.
+4. Endpoints:
+    - GET / : Mensaje de bienvenida.
+    - GET /consulta/ : Mensaje indicando el uso de POST.
+    - POST /consulta/ : Procesamiento de una consulta enviada por el usuario.
+
+Módulos externos utilizados:
+- SolicitudConsulta (modelo de datos).
+- load_env_vars (carga de variables de entorno).
+- cargar_documento_en_chroma_db (gestión de base de datos de vectores).
+- procesar_consulta (procesamiento de consultas).
+"""
+
 from fastapi import FastAPI
 from app.models import SolicitudConsulta
 from app.config import load_env_vars

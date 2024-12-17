@@ -1,3 +1,19 @@
+"""
+Módulo de configuración para cargar y validar variables de entorno.
+
+Este módulo se encarga de cargar las variables de entorno desde un archivo `.env` 
+utilizando `python-dotenv` y validar que todas las claves requeridas estén presentes.
+
+Funcionalidades principales:
+- Cargar variables de entorno desde un archivo `.env`.
+- Validar la existencia de claves de entorno esenciales.
+- Lanzar un error si alguna clave obligatoria falta.
+
+Dependencias:
+- os: Acceso a variables de entorno del sistema.
+- dotenv (load_dotenv): Carga variables de entorno desde un archivo local.
+"""
+
 import os
 from dotenv import load_dotenv
 
