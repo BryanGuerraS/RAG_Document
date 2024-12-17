@@ -19,12 +19,12 @@
 ## 📂 Estructura del proyecto
 ```console
 📁 app  
-├── config.py               # Procesa documentos y los divide en chunks.  
-├── db.py                   # Genera embeddings utilizando Cohere.  
-├── models.py               # Almacena chunks y embeddings en ChromaDB.  
-├── services.py             # Busca documentos relevantes en ChromaDB.  
+├── config.py               # Carga y valida variables de entorno.
+├── db.py                   # Carga documentos en ChromaDB con LangChain.
+├── models.py               # Define modelos de datos para la API.
+├── services.py             # Orquesta el procesamiento de consultas mediante RAG.
 📁 archivos
-├── documento.docx          #
+├── documento.docx          # Documento a partir de la cual se extrae la información.
 📁 postman_examples         # Contiene la colección de Postman para probar la API.  
 ├── RAG Lanchain y Llama Index.postman_collection.json  # Colección de Postman exportada.  
 Dockerfile                  # Configuración para construir la imagen Docker.  
