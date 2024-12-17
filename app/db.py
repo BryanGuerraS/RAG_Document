@@ -16,7 +16,7 @@ def cargar_documento_en_chroma_db():
 
     # Cargar el documento
     try:
-        loader = Docx2txtLoader("documento.docx")
+        loader = Docx2txtLoader("archivos/documento.docx")
         data = loader.load()
     except FileNotFoundError:
         raise FileNotFoundError("El archivo 'documento.docx' no fue encontrado.")
@@ -24,8 +24,8 @@ def cargar_documento_en_chroma_db():
     # Dividir el contenido en fragmentos
     text_splitter = RecursiveCharacterTextSplitter(
         separators=["\n\n", "\n"],
-        chunk_size=400,
-        chunk_overlap=30,
+        chunk_size=512,
+        chunk_overlap=128,
         add_start_index=True
     )
 

@@ -55,6 +55,7 @@ def detectar_idioma(state: SolicitudConsulta):
     Respuesta:
     """
     response = llm.invoke(prompt)
+    print(f'Idioma detectado: {response.content}')
     return response.content
 
 def generar_respuesta(state: SolicitudConsulta, context: list):
